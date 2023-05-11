@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Memorama</title>
+    <style>
+      .card {
+        background-color: #ddd;
+        border: 1px solid #999;
+        border-radius: 5px;
+        display: inline-block;
+        font-size: 24px;
+        font-weight: bold;
+        height: 100px;
+        margin: 5px;
+        text-align: center;
+        width: 100px;
+      }
+      
+      .hidden {
+        background-color: #999;
+        color: #999;
+        cursor: default;
+      }
+      
+      .matched {
+        background-color: #8bc34a;
+        border-color: #689f38;
+        color: #fff;
+        cursor: default;
+      }
+      
+      .selected {
+        background-color: #2196f3;
+        border-color: #1565c0;
+        color: #fff;
+        cursor: default;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Plantilla cargada correctamente</h1>
+    <div id="gameBoard"></div>
+    <script type="text/javascript">
+        let cards = [];
+        let firstCard = null;
+        let secondCard = null;
+        let numCards = parseInt('{{ num_cards }}') * 2;
+        let symbols = JSON.parse('{{ cards_json|escapejs }}');
+        let canClick = false;
+        
+        // Crea un array de los simbolos
+        for (let i = 0; i < numCards / 2; i++) {
+            cards.push(symbols[i]);
+            cards.push(symbols[i]);
+        }
+        
+        // Mezcla de nuevo las cartas
+        for (let i = cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [cards[i], cards[j]] = [cards[j], cards[i]];
+        }
+        
+        // Se crea el juego con las cartas
+        const gameBoard = document.getElementById('gameBoard');
+        for (let i = 0; i < numCards; i++) {
+            const card = document.createElement('div');
+            card.className = 'card hidden'; // agrega la clase hidden
+            card.dataset.symbol = cards[i];
+            card.addEventListener('click', handleCardClick);
+            gameBoard.appendChild(card);
+        }
+        canClick = true;
+
+        // Evento de las cartas con click
+        function handleCardClick() {
+            if (!canClick || this === firstCard) return; // si ya hay 2 cartas volteadas o la carta ya está volteada, no hacer nada
+            this.classList.remove('hidden'); // remueve la clase hidden
+            this.textContent = this.dataset.symbol; // establecer el contenido del texto de la carta al voltearla
+            if (!firstCard) {
+                firstCard = this;
+                return;
+            }
+            secondCard = this;
+            canClick = false; // deshabilitar clics mientras se están volteando las cartas
+            checkForMatch();
+        }
+    
+        // Verifica si las cartas son iguales
+        function checkForMatch() {
+            if (firstCard.dataset.symbol === secondCard.dataset.symbol) {
+                firstCard.removeEventListener('click', handleCardClick);
+                secondCard.removeEventListener('click', handleCardClick);
+                resetCards();
+                if (cards.length === 0) {
+                    alert('¡Felicidades, has ganado!');
+                }
+            } else {
+                setTimeout(() => {
+                    firstCard.classList.add('hidden');
+                    secondCard.classList.add('hidden');
+                    resetCards();
+                }, 1000);
+            }
+        }
+        
+        // Reset de las cartas si no son iguales
+        function resetCards() {
+            firstCard = null;
+            secondCard = null;
+            canClick = true;
+        }
+    </script>
+  </body>
+</html>

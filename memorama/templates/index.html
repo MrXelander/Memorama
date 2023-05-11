@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Memorama</title>
+  </head>
+  <body>
+    <form method="post">
+      {% csrf_token %}
+      <label for="num_cards">Número de cartas:</label>
+      <input type="number" name="num_cards" id="num_cards" min="2" max="{{ max_cards }}" required>
+      <button type="submit">Jugar</button>
+    </form>
+  </body>
+</html>
